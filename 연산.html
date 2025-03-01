@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>한 자리 연산 게임</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #222;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin: 20px 0 10px;
+    }
+    #game-container {
+      background: #333;
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 6px;
+    }
+    .scoreboard {
+      margin-top: 10px;
+    }
+    .scoreboard div {
+      margin: 5px 0;
+    }
+    button, input {
+      font-size: 1rem;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #555;
+      color: #fff;
+      margin: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #777;
+    }
+    input[type="number"] {
+      width: 80px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>한 자리 연산 게임</h1>
+  <div id="game-container">
+    <div id="question" style="font-size: 1.4rem; margin-bottom: 10px;">
+      문제: 
+    </div>
+    <input type="number" id="answerInput" placeholder="정답 입력" />
+    <div>
+      <button id="checkBtn">정답 확인</button>
+      <button id="nextBtn">다음 문제</button>
+    </div>
+    <div id="message" style="margin: 10px 0; min-height: 1.2em;"></div>
+
+    <div class="scoreboard">
+      <div>맞힌 개수: <span id="correctCount">0</span></div>
+      <div>틀린 개수: <span id="wrongCount">0</span></div>
+    </div>
+  </div>
+
+  <script>
+    // 전역 변수
+    let correctAnswer = null;  // 현재 문제의 정답
+    let correctCount = 0;      // 맞춘 횟수
+    let wrongCount = 0;        // 틀린 횟수
+
+    const questionElem = document.getElementById('question');
+    const answerInput = document.getElementById('answerInput');
+    const messageElem = document.getElementById('message');
+    const correctCountElem = document.getElementById('correctCount');
+    const wrongCountElem = document.getElementById('wrongCount');
+
+    // 문제 출제 함수
+    function generateQuestion() {
+      // 연산 기호를 랜덤 선택: 0->+, 1->-, 2->×, 3->÷
+      const operatorIndex = Math.floor(Math.random() * 4);
+      let operator;
+      let a, b;
+
+      if (operatorIndex === 0) {
+        operator = '+';
+        a = Math.floor(Math.random() * 10);
+        b = Math.floor(Math.random() * 10);
+        correctAnswer = a + b;
+      } else if (operatorIndex === 1) {
+        operator = '-';
+        // 음수 결과를 피하려면 a >= b 조건 설정, 
+        // 하지만 예시에서는 음수도 허용하고 싶다면 제한 없이 사용 가능
+        a = Math.floor(Math.random() * 10);
+        b = Math.floor(Math.random() * 10);
+        correctAnswer = a - b;
+      } else if (operatorIndex === 2) {
+        operator = '×';
+        a = Math.floor(Math.random() * 10);
+        b = Math.floor(Math.random() * 10);
+        correctAnswer = a * b;
+      } else {
+        // ÷
+        operator = '÷';
+        // 정수 나눗셈만 출제 (나머지 0이 되도록)
+        // 0으로 나누기는 불가능하므로 b != 0
+        do {
+          a = Math.floor(Math.random() * 10);
+          b = Math.floor(Math.random() * 9) + 1; // b는 1~9
+        } while (a % b !== 0);  // 나머지가 0이 될 때까지
+        correctAnswer = a / b;
+      }
+
+      // 화면에 표시
+      questionElem.textContent = `문제: ${a} ${operator} ${b} = ?`;
+      // 입력창 초기화
+      answerInput.value = '';
+      messageElem.textContent = '';
+    }
+
+    // 정답 확인 함수
+    function checkAnswer() {
+      const userAnswer = Number(answerInput.value);
+      if (answerInput.value.trim() === '') {
+        messageElem.textContent = '답을 입력하세요!';
+        return;
+      }
+
+      if (userAnswer === correctAnswer) {
+        messageElem.textContent = '정답입니다!';
+        correctCount++;
+        correctCountElem.textContent = correctCount;
+      } else {
+        messageElem.textContent = `틀렸습니다! 정답은 ${correctAnswer}입니다.`;
+        wrongCount++;
+        wrongCountElem.textContent = wrongCount;
+      }
+    }
+
+    // 버튼 이벤트
+    document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+    document.getElementById('nextBtn').addEventListener('click', generateQuestion);
+
+    // 페이지가 로드되면 첫 문제 출제
+    window.addEventListener('load', generateQuestion);
+  </script>
+</body>
+</html>
